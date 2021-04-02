@@ -113,7 +113,7 @@
 #define MAX_HOST_LEN 64  /* maximal length of hostname */
 #define MAX_PORT_LEN 8   /* maximal length of port number */
 
-#define DEFAULT_PORT 6666   /* default game port */
+#define DEFAULT_PORT 6666  /* default game port */
 
 #define MEDIKIT_HEALTH_ADD 30
 #define ARMOR_ADD 50
@@ -147,10 +147,10 @@ extern int tri_d;
 	#undef ERROR
 	#ifdef SERVER
 		extern int			consoleApp;
-		#define ERROR(a)	{if (!console_ok)c_shutdown();if(consoleApp)fprintf(stderr,a);}
+		#define ERROR(a)	{if (!console_ok) c_shutdown(); if(consoleApp) fputs(a, stderr);}
 		#define EXIT(a)		{if (!consoleApp)ReportStatusToSCMgr(SERVICE_STOPPED, NO_ERROR, 0);exit(a);}
 	#else
-		#define ERROR(a)	{if (!console_ok)c_shutdown();fprintf(stderr,a);}
+		#define ERROR(a)	{if (!console_ok) c_shutdown(); fputs(a, stderr);}
 		#define EXIT(a)		{exit(a);}
 	#endif
 	#define random		rand
@@ -163,9 +163,9 @@ extern int tri_d;
 
 	#define long_long	long long
 	#ifdef CLIENT
-		#define ERROR(a)	{if (!console_ok)c_shutdown();fprintf(stderr,a);}
+		#define ERROR(a)	{if (!console_ok) c_shutdown(); fputs(a, stderr);}
 	#else
-		#define ERROR(a)	{fprintf(stderr,a);}
+		#define ERROR(a)	{fputs(a, stderr);}
 	#endif
 
 	#include <stdlib.h>

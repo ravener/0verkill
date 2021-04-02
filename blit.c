@@ -13,9 +13,9 @@
 
 
 /* screen dimensions */
-int SCREEN_X,SCREEN_Y;
+int SCREEN_X, SCREEN_Y;
 
-int SCREEN_XOFFSET,SCREEN_YOFFSET;
+int SCREEN_XOFFSET, SCREEN_YOFFSET;
 
 
 /* screenbuffer */
@@ -30,8 +30,8 @@ unsigned char *screen2_old;
 char *line_buf;
 
 /* attributes:
-	lower 4 bits=foreground
-	bits 4-7=background
+  lower 4 bits=foreground
+  bits 4-7=background
 */
 unsigned char *screen_a;
 unsigned char *screen_a_old;
@@ -44,271 +44,362 @@ unsigned char *screen2_a_old;
 
 /* allocate memory for screenbuffer */
 /* requires SCREEN_X and SCREEN_Y as screen size */
-void init_blit(void)
-{
-	line_buf=mem_alloc(SCREEN_X);
-	if (!line_buf){ERROR("Not enough memory!\n");EXIT(1);}
-	screen=mem_alloc(SCREEN_X*SCREEN_Y);
-	if (!screen){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_a=mem_alloc(SCREEN_X*SCREEN_Y);
-	if (!screen_a){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_old=mem_alloc(SCREEN_X*SCREEN_Y);
-	if (!screen_old){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_a_old=mem_alloc(SCREEN_X*SCREEN_Y);
-	if (!screen_a_old){ERROR("Not enough memory!\n");EXIT(1);}
-	memset(screen_a_old,0,SCREEN_X*SCREEN_Y);
-	memset(screen_old,0,SCREEN_X*SCREEN_Y);
+void init_blit(void) {
+  line_buf = mem_alloc(SCREEN_X);
+
+  if (!line_buf) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen = mem_alloc(SCREEN_X * SCREEN_Y);
+
+  if (!screen) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_a = mem_alloc(SCREEN_X * SCREEN_Y);
+
+  if (!screen_a) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_old = mem_alloc(SCREEN_X * SCREEN_Y);
+
+  if (!screen_old) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_a_old = mem_alloc(SCREEN_X * SCREEN_Y);
+
+  if (!screen_a_old) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  memset(screen_a_old, 0, SCREEN_X * SCREEN_Y);
+  memset(screen_old,   0, SCREEN_X * SCREEN_Y);
 
 #ifdef TRI_D
-	if (TRI_D_ON)
-	{
-		screen2=mem_alloc(SCREEN_X*SCREEN_Y);
-		if (!screen2){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_a=mem_alloc(SCREEN_X*SCREEN_Y);
-		if (!screen2_a){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_old=mem_alloc(SCREEN_X*SCREEN_Y);
-		if (!screen2_old){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_a_old=mem_alloc(SCREEN_X*SCREEN_Y);
-		if (!screen2_a_old){ERROR("Not enough memory!\n");EXIT(1);}
-		memset(screen2_a_old,0,SCREEN_X*SCREEN_Y);
-		memset(screen2_old,0,SCREEN_X*SCREEN_Y);
-	}
+  if (TRI_D_ON) {
+    screen2 = mem_alloc(SCREEN_X * SCREEN_Y);
+
+    if (!screen2) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_a = mem_alloc(SCREEN_X * SCREEN_Y);
+
+    if (!screen2_a) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_old = mem_alloc(SCREEN_X * SCREEN_Y);
+
+    if (!screen2_old) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_a_old = mem_alloc(SCREEN_X * SCREEN_Y);
+
+    if (!screen2_a_old) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    memset(screen2_a_old, 0, SCREEN_X * SCREEN_Y);
+    memset(screen2_old,   0, SCREEN_X * SCREEN_Y);
+  }
 #endif
-	
-        SCREEN_XOFFSET=(SCREEN_X-PLAYER_WIDTH)>>1;
-        SCREEN_YOFFSET=(SCREEN_Y-PLAYER_HEIGHT)>>1;
+  SCREEN_XOFFSET = (SCREEN_X - PLAYER_WIDTH)  >> 1;
+  SCREEN_YOFFSET = (SCREEN_Y - PLAYER_HEIGHT) >> 1;
 }
 
-void shutdown_blit(void)
-{
-	mem_free(line_buf);
-	mem_free(screen);
-	mem_free(screen_a);
-	mem_free(screen_old);
-	mem_free(screen_a_old);
+void shutdown_blit(void) {
+  mem_free(line_buf);
+  mem_free(screen);
+  mem_free(screen_a);
+  mem_free(screen_old);
+  mem_free(screen_a_old);
 }
 
 
-void clear_screen(void)
-{
-	memset(screen_a,0,SCREEN_X*SCREEN_Y);
-	memset(screen,0,SCREEN_X*SCREEN_Y);
+void clear_screen(void) {
+  memset(screen_a, 0, SCREEN_X * SCREEN_Y);
+  memset(screen,   0, SCREEN_X * SCREEN_Y);
 
 #ifdef TRI_D
-	if (TRI_D_ON)
-	{
-		memset(screen2_a,0,SCREEN_X*SCREEN_Y);
-		memset(screen2,0,SCREEN_X*SCREEN_Y);
-	}
+  if (TRI_D_ON) {
+    memset(screen2_a, 0, SCREEN_X * SCREEN_Y);
+    memset(screen2,   0, SCREEN_X * SCREEN_Y);
+  }
 #endif
 }
 
 
 /* resize and clear screen buffers to new dimensions stored in SCREEN_X and SCREEN_Y*/
-void resize_screen(void)
-{
-	c_get_size(&SCREEN_X,&SCREEN_Y);
-	line_buf=mem_realloc(line_buf,SCREEN_X);
-	if (!line_buf){ERROR("Not enough memory!\n");EXIT(1);}
-	screen=mem_realloc(screen,SCREEN_X*SCREEN_Y);
-	if (!screen){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_a=mem_realloc(screen_a,SCREEN_X*SCREEN_Y);
-	if (!screen_a){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_old=mem_realloc(screen_old,SCREEN_X*SCREEN_Y);
-	if (!screen_old){ERROR("Not enough memory!\n");EXIT(1);}
-	screen_a_old=mem_realloc(screen_a_old,SCREEN_X*SCREEN_Y);
-	if (!screen_a_old){ERROR("Not enough memory!\n");EXIT(1);}
-	memset(screen_a_old,0,SCREEN_X*SCREEN_Y);
-	memset(screen_old,0,SCREEN_X*SCREEN_Y);
+void resize_screen(void) {
+  c_get_size(&SCREEN_X, &SCREEN_Y);
+  line_buf = mem_realloc(line_buf, SCREEN_X);
+
+  if (!line_buf) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen = mem_realloc(screen, SCREEN_X * SCREEN_Y);
+
+  if (!screen) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_a = mem_realloc(screen_a, SCREEN_X * SCREEN_Y);
+
+  if (!screen_a) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_old = mem_realloc(screen_old, SCREEN_X * SCREEN_Y);
+
+  if (!screen_old) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  screen_a_old = mem_realloc(screen_a_old, SCREEN_X * SCREEN_Y);
+
+  if (!screen_a_old) {
+    ERROR("Not enough memory!\n");
+    EXIT(1);
+  }
+
+  memset(screen_a_old, 0, SCREEN_X * SCREEN_Y);
+  memset(screen_old,   0, SCREEN_X * SCREEN_Y);
 
 #ifdef TRI_D
-	if (TRI_D_ON)
-	{
-		screen2=mem_realloc(screen2,SCREEN_X*SCREEN_Y);
-		if (!screen2){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_a=mem_realloc(screen2_a,SCREEN_X*SCREEN_Y);
-		if (!screen2_a){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_old=mem_realloc(screen2_old,SCREEN_X*SCREEN_Y);
-		if (!screen2_old){ERROR("Not enough memory!\n");EXIT(1);}
-		screen2_a_old=mem_realloc(screen2_a_old,SCREEN_X*SCREEN_Y);
-		if (!screen2_a_old){ERROR("Not enough memory!\n");EXIT(1);}
-		memset(screen2_a_old,0,SCREEN_X*SCREEN_Y);
-		memset(screen2_old,0,SCREEN_X*SCREEN_Y);
-	}
-#endif
-	
-	SCREEN_XOFFSET=(SCREEN_X-PLAYER_WIDTH)>>1;
-	SCREEN_YOFFSET=(SCREEN_Y-PLAYER_HEIGHT)>>1;
+  if (TRI_D_ON) {
+    screen2 = mem_realloc(screen2, SCREEN_X * SCREEN_Y);
 
-	clear_screen();
+    if (!screen2) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_a = mem_realloc(screen2_a, SCREEN_X * SCREEN_Y);
+
+    if (!screen2_a) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_old = mem_realloc(screen2_old, SCREEN_X * SCREEN_Y);
+
+    if (!screen2_old) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    screen2_a_old = mem_realloc(screen2_a_old, SCREEN_X * SCREEN_Y);
+
+    if (!screen2_a_old) {
+      ERROR("Not enough memory!\n");
+      EXIT(1);
+    }
+
+    memset(screen2_a_old, 0, SCREEN_X * SCREEN_Y);
+    memset(screen2_old,   0, SCREEN_X * SCREEN_Y);
+  }
+#endif
+  
+  SCREEN_XOFFSET = (SCREEN_X - PLAYER_WIDTH)  >> 1;
+  SCREEN_YOFFSET = (SCREEN_Y - PLAYER_HEIGHT) >> 1;
+
+  clear_screen();
 }
 
 
-void redraw_screen(void)
-{
-	memset(screen_a_old,0,SCREEN_X*SCREEN_Y);
-	memset(screen_old,0,SCREEN_X*SCREEN_Y);
+void redraw_screen(void) {
+  memset(screen_a_old, 0, SCREEN_X * SCREEN_Y);
+  memset(screen_old,   0, SCREEN_X * SCREEN_Y);
 
 #ifdef TRI_D
-	if (TRI_D_ON)
-	{
-		memset(screen2_a_old,0,SCREEN_X*SCREEN_Y);
-		memset(screen2_old,0,SCREEN_X*SCREEN_Y);
-	}
+  if (TRI_D_ON) {
+    memset(screen2_a_old, 0, SCREEN_X * SCREEN_Y);
+    memset(screen2_old,   0, SCREEN_X * SCREEN_Y);
+  }
 #endif
 
-	clear_screen();
+  clear_screen();
 }
 
 
 /* print text into screen buffer on given position, with given color */
-void print2screen(int x,int y,unsigned char color,char *message)
-{
-	int offs=x+SCREEN_X*y;
-	int l=strlen(message);
+void print2screen(int x,int y, unsigned char color, char *message) {
+  int offs = x + SCREEN_X * y;
+  int l = strlen(message);
 
-	color&=15;
+  color &= 15;
 
-	if (y>=SCREEN_Y||x>=SCREEN_X)return;
-	if (l+offs>SCREEN_X*SCREEN_Y)l=SCREEN_X*SCREEN_Y-offs;
-	
-	memset(screen_a+offs,color,l);
-	memcpy(screen+offs,message,l);
+  if (y >= SCREEN_Y || x >= SCREEN_X) return;
+  if (l + offs > SCREEN_X * SCREEN_Y) l = SCREEN_X * SCREEN_Y - offs;
+  
+  memset(screen_a + offs, color, l);
+  memcpy(screen   + offs, message, l);
 
 #ifdef TRI_D
-	if (TRI_D_ON)
-	{
-		memset(screen2_a+offs,color,l);
-		memcpy(screen2+offs,message,l);
-	}
+  if (TRI_D_ON) {
+    memset(screen2_a + offs, color, l);
+    memcpy(screen2   + offs, message, l);
+  }
 #endif
 }
 
 
 /* draw screenbuffer to the screen */
 #ifdef HAVE_INLINE
-	inline void 
+  inline void 
 #else
-	void
+  void
 #endif
-blit_screen(unsigned char ignore_bg)
-{
-	int x,y,s;
-	int yof, off;
-	unsigned char a;
-	int changed=1;
-	int status_flag;
-	unsigned char *sc, *sc_old, *at, *at_old;
-	unsigned char last_color;
-	unsigned char attribute,attribute_old;
-	
+blit_screen(unsigned char ignore_bg) {
+  int x, y, s;
+  int yof, off;
+  unsigned char a;
+  int changed = 1;
+  int status_flag;
+  unsigned char *sc, *sc_old, *at, *at_old;
+  unsigned char last_color;
+  unsigned char attribute, attribute_old;
+  
 #ifdef TRI_D
-	sc=(TRI_D_ON&&tri_d)?screen2:screen;
-	sc_old=(TRI_D_ON&&tri_d)?screen2_old:screen_old;
-	at=(TRI_D_ON&&tri_d)?screen2_a:screen_a;
-	at_old=(TRI_D_ON&&tri_d)?screen2_a_old:screen_a_old;
+  sc = (TRI_D_ON && tri_d) ? screen2 : screen;
+  sc_old = (TRI_D_ON && tri_d) ? screen2_old : screen_old;
+  at = (TRI_D_ON && tri_d) ? screen2_a : screen_a;
+  at_old = (TRI_D_ON && tri_d) ? screen2_a_old : screen_a_old;
 #else
-	sc=screen;
-	sc_old=screen_old;
-	at=screen_a;
-	at_old=screen_a_old;
+  sc = screen;
+  sc_old = screen_old;
+  at = screen_a;
+  at_old = screen_a_old;
 #endif
 
-	last_color=*at;
-	if (ignore_bg)last_color&=15;
-	c_setcolor_bg(last_color,(last_color)>>4);
-	for (y=0;y<SCREEN_Y;y++)
-	{
-		c_goto(0,y);
-		yof=SCREEN_X*y;
-		for (x=0;x<SCREEN_X;x++)
-		{ 
-			attribute=at[x+yof];
-			attribute_old=at_old[x+yof];
-			if (ignore_bg){attribute&=15;attribute_old&=15;}
+  last_color = *at;
+  if (ignore_bg) last_color &= 15;
+  c_setcolor_bg(last_color, (last_color) >> 4);
+  for (y = 0; y < SCREEN_Y; y++) {
+    c_goto(0, y);
+    yof = SCREEN_X * y;
+    for (x = 0; x < SCREEN_X; x++) { 
+      attribute = at[x + yof];
+      attribute_old = at_old[x + yof];
 
-			if (x == SCREEN_X - 1 && y == SCREEN_Y - 1) break;
-			if (sc[x+yof]==sc_old[x+yof]&&attribute==attribute_old){changed=0;continue;}
-			if (!changed)c_goto(x,y);
-			changed=1;
+      if (ignore_bg) {
+        attribute &= 15;
+        attribute_old &= 15;
+      }
 
-			a=(last_color^attribute);
-			status_flag=	!!(a&0x07) |	/* foreground */
-					((a&0x08)>>2) |	/* foreground highlight */
-					(!!(a&0x70)<<2);/* background */
+      if (x == SCREEN_X - 1 && y == SCREEN_Y - 1) break;
 
-			switch(status_flag)  /* what changed: */
-			{
-				case 0:  /* nothing */
-				break;
+      if (sc[x + yof]== sc_old[x + yof] && attribute == attribute_old) {
+        changed = 0;
+        continue;
+      }
 
-				case 1:  /* foreground */
-				c_setcolor_3b(attribute);
-				break;
+      if (!changed) c_goto(x, y);
+      changed = 1;
 
-				case 6:  /* higlight and background */
-				case 2:  /* highlight */
-				if (attribute&8)  /* hlt on */
-					c_sethlt_bg((attribute>>3)&1,attribute>>4);
-				else
-					c_setcolor_bg(attribute,attribute>>4);
-				break;
+      a = (last_color ^ attribute);
+      status_flag = !!(a & 0x07) |       /* foreground */
+                     ((a & 0x08) >> 2) | /* foreground highlight */
+                   (!!(a & 0x70) << 2);  /* background */
 
-				case 7: /* background, foreground and highlight */
-				case 3: /* foreground and higlight */
-				c_setcolor_bg(attribute,attribute>>4);
-				break;
-				
-				case 4:  /* background */
-				c_setbgcolor(attribute>>4);
-				break;
+      switch(status_flag) { /* what changed: */
+        case 0:  /* nothing */
+          break;
 
-				case 5:  /* background and foreground */
-				c_setcolor_3b_bg(attribute,attribute>>4);
-				break;
-			}
-			/* draw bigger pieces to screen */
-			line_buf[x] = sc[off = x + yof] ? sc[off = x + yof] : 32;
-			for (s = x++; x < SCREEN_X && at[off = x + yof] == attribute &&
-					at_old[off] == attribute_old; x++)
-					line_buf[x] = sc[off] ? sc[off] : 32;
-			last_color = attribute;
-			c_print_l(line_buf + s, x---s);
-		}
-	}
-	memcpy(sc_old,sc,SCREEN_X*SCREEN_Y);
-	memcpy(at_old,at,SCREEN_X*SCREEN_Y);
-	c_refresh();
+        case 1:  /* foreground */
+          c_setcolor_3b(attribute);
+          break;
+
+        case 6:  /* higlight and background */
+        case 2:  /* highlight */
+          if (attribute & 8)  /* hlt on */
+            c_sethlt_bg((attribute >> 3) & 1, attribute >> 4);
+          else
+            c_setcolor_bg(attribute, attribute >> 4);
+          break;
+
+        case 7: /* background, foreground and highlight */
+        case 3: /* foreground and higlight */
+          c_setcolor_bg(attribute, attribute >> 4);
+          break;
+        
+        case 4:  /* background */
+          c_setbgcolor(attribute >> 4);
+          break;
+
+        case 5:  /* background and foreground */
+          c_setcolor_3b_bg(attribute, attribute >> 4);
+          break;
+      }
+
+      /* draw bigger pieces to screen */
+      line_buf[x] = sc[off = x + yof] ? sc[off = x + yof] : 32;
+
+      for (s = x++; x < SCREEN_X && at[off = x + yof] == attribute && at_old[off] == attribute_old; x++) {
+        line_buf[x] = sc[off] ? sc[off] : 32;
+      }
+
+      last_color = attribute;
+      c_print_l(line_buf + s, x---s);
+    }
+  }
+
+  memcpy(sc_old, sc, SCREEN_X * SCREEN_Y);
+  memcpy(at_old, at, SCREEN_X * SCREEN_Y);
+  c_refresh();
 }
 
 
 /* draw frame to the screen */
 /* x,y = upper left corner */
 /* w,h = width and height of the content */
-void draw_frame(int x,int y,int w,int h,unsigned char color)
-{
-	int a;
-	char *t;
-	
-	color&=15;
+void draw_frame(int x, int y, int w, int h, unsigned char color) {
+  int a;
+  char *t;
+  
+  color &= 15;
 
 
-	t=mem_alloc(w+3);
-	if (!t)return;
-	t[w+2]=0;
-	t[w]=0;
-	t[w-1]=0;
-	print2screen(x,y,color,"+");
-	print2screen(x+w+1,y,color,"+");
-	print2screen(x+w+1,y+h+1,color,"+");
-	print2screen(x,y+h+1,color,"+");
-	memset(t,'-',w);
-	print2screen(x+1,y,color,t);
-	print2screen(x+1,y+h+1,color,t);
-	memset(t,' ',w+1);
-	t[0]='|';
-	t[w+1]='|';
-	for (a=1;a<=h;a++)
-		print2screen(x,y+a,color,t);
-	mem_free(t);
+  t = mem_alloc(w + 3);
+  if (!t) return;
+
+  t[w + 2] = 0;
+  t[w]     = 0;
+  t[w - 1] = 0;
+
+  print2screen(x, y, color, "+");
+  print2screen(x + w + 1, y, color, "+");
+  print2screen(x + w + 1, y + h + 1, color, "+");
+  print2screen(x, y + h + 1, color, "+");
+  memset(t, '-', w);
+  print2screen(x + 1, y, color, t);
+  print2screen(x + 1, y + h + 1, color, t);
+  memset(t, ' ', w + 1);
+  t[0] = '|';
+  t[w + 1] = '|';
+
+  for (a = 1; a <= h; a++) {
+    print2screen(x, y + a, color, t);
+  }
+
+  mem_free(t);
 }

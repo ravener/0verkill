@@ -1,5 +1,8 @@
-#!/bin/bash
-rm -f config.status config.cache config.log config.h Makefile
-rm -f *.o
-rm -f 0verkill avi editor server test_server x0verkill xeditor bot xavi
+#!/bin/sh
 
+# Remove autoconf files.
+rm -f config.status config.cache config.log config.h config.h.in Makefile
+# Remove cached object files.
+rm -f *.o
+# Remove built binaries.
+rm -f 0verkill avi editor server test_server x0verkill xeditor bot xavi

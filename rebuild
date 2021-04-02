@@ -1,7 +1,13 @@
-#!/bin/bash
+#!/bin/sh
+
+# Remove all built files to start with a clean state.
 ./purge
+
+# Generate files.
 aclocal
 autoheader
 autoconf
-./configure --with-x
+./configure
+
+# Build
 make

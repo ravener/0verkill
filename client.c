@@ -1384,29 +1384,29 @@ int process_packet(char *packet,int l)
 			int a;
 			char p;
 
-			if (l<38)break;   /* invalid packet */
-			a=get_int(packet+1);
-			if (level_number==a)goto level_changed;
-			level_number=a;
+			if (l<38) break;   /* invalid packet */
+			a = get_int(packet + 1);
+			if (level_number == a) goto level_changed;
+			level_number = a;
 			snprintf(txt, sizeof(txt), "Trying to change level to number %d", level_number);
 			add_message(txt, M_INFO);
-			name=load_level(level_number);
+			name = load_level(level_number);
 			if (!name) {
-				snprintf(error_message,1024,"Cannot find level "
+				snprintf(error_message, 1024, "Cannot find level "
 					"number %d. Game terminated. Press ENTER.",
 					level_number);
 				send_quit();
 				return -1;
 			}
-			snprintf(txt,256,"Changing level to \"%s\"",name);
+			snprintf(txt, 256, "Changing level to \"%s\"", name);
 			mem_free(name);
 			add_message(txt, M_INFO);
 			
-			md5=md5_level(level_number);
-			if (strcmp((char *)md5,packet+5))   /* MD5s differ */
-			{
-				mem_free(md5);
-				snprintf(error_message,1024,"Invalid MD5 sum. Can't change level. Game terminated. Press ENTER.");
+			md5 = md5_level(level_number);
+
+			if (strcmp((char*) md5, packet + 5)) { /* MD5s differ */
+        mem_free(md5);
+				snprintf(error_message, 1024, "Invalid MD5 sum. Can't change level. Game terminated. Press ENTER.");
 				add_message("Invalid MD5 sum. Can't change level. Exiting...", M_INFO);
 				send_quit();
 				return -1;
@@ -1417,9 +1417,9 @@ int process_packet(char *packet,int l)
 			change_level();
 level_changed:		
 			
-			p=P_LEVEL_ACCEPTED;
-			send_packet(&p,1,(struct sockaddr *)(&server),my_id,0);
-			n=38;
+			p = P_LEVEL_ACCEPTED;
+			send_packet(&p, 1, (struct sockaddr *)(&server), my_id, 0);
+			n = 38;
 		}
 		break;
 
@@ -1992,9 +1992,8 @@ void signal_handler(int signum)
 
 
 /* change size of the screen */
-void sigwinch_handler(int signum)
-{
-	signum=signum;
+void sigwinch_handler(int signum) {
+  (void)signum;
 	resize_screen();
 #ifdef WIN32
 	c_shutdown();

@@ -23,59 +23,66 @@
 #include "md5.h"
 #include "error.h"
 
-char *
-MD5End(MD5_CTX *ctx, char *buf)
-{
-    int i;
-    unsigned char digest[MD5_HASHBYTES];
-    static const char hex[]="0123456789abcdef";
+char* MD5End(MD5_CTX *ctx) {
+  int i;
+  unsigned char digest[MD5_HASHBYTES];
+  static const char hex[] = "0123456789abcdef";
 
-    if (!buf)
-        buf = mem_alloc(33);
-    if (!buf)
-	return 0;
-    MD5Final(digest,ctx);
-    for (i=0;i<MD5_HASHBYTES;i++) {
-	buf[i+i] = hex[digest[i] >> 4];
-	buf[i+i+1] = hex[digest[i] & 0x0f];
-    }
-    buf[i+i] = '\0';
-    return buf;
+  // Allocate (16 * 2) + 1 (for the null byte)
+  char* buf = mem_alloc(33);
+  if (!buf) return 0;
+
+  MD5Final(digest, ctx);
+
+  for (i = 0; i < MD5_HASHBYTES; i++) {
+    buf[i + i]     = hex[digest[i] >> 4];
+    buf[i + i + 1] = hex[digest[i] & 0x0f];
+  }
+
+  // Add the null byte.
+  buf[i + i] = '\0';
+  return buf;
 }
 
-char *
-MD5File (const char *filename, char *buf)
-{
-    unsigned char buffer[BUFSIZ];
-    MD5_CTX ctx;
-    int i,j;
-	FILE *f;
+char* MD5File(const char *filename) {
+  MD5_CTX ctx;
+  FILE *f;
 
-    MD5Init(&ctx);
+  MD5Init(&ctx);
 
 #ifndef WIN32
-    if (!(f = fopen(filename, "r")))
+  if (!(f = fopen(filename, "r")))
 #else
-	printf("%s\n", filename);for(;;);
+	printf("%s\n", filename);
+  for(;;);
 	if (fopen_s(&f, filename, "r") != 0) /* tady to hnije .. */
 #endif
 	return 0;
-    while ((i = fread(buffer,sizeof buffer,1,f)) > 0) {
-	MD5Update(&ctx,buffer,i);
-    }
-    j = errno;
+
+  fseek(f, 0L, SEEK_END);
+  size_t filesize = ftell(f);
+  rewind(f);
+  unsigned char* buf = malloc(filesize + 1);
+
+  if (fread(buf, sizeof(char), filesize, f) < filesize) {
     fclose(f);
-    errno = j;
-    if (i < 0) return 0;
-    return MD5End(&ctx, buf);
+    return 0;
+  }
+
+  fclose(f);
+
+  MD5Update(&ctx, buf, filesize);
+
+  // No longer need the file contents.
+  free(buf);
+
+  return MD5End(&ctx);
 }
 
-char *
-MD5Data (const unsigned char *data, unsigned int len, char *buf)
-{
-    MD5_CTX ctx;
+char* MD5Data(const unsigned char *data, unsigned int len) {
+  MD5_CTX ctx;
 
-    MD5Init(&ctx);
-    MD5Update(&ctx,data,len);
-    return MD5End(&ctx, buf);
+  MD5Init(&ctx);
+  MD5Update(&ctx, data, len);
+  return MD5End(&ctx);
 }

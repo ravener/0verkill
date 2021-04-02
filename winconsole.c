@@ -1,9 +1,10 @@
-/* CONSOLE INTERFACE FOR WINDOWS */
+/* Console Interface for Windows */
+
 #include "cfg.h"
 #include "console.h"
 #include "error.h"
 
-int console_ok=1;
+int console_ok = 1;
 
 //#define STD_CONSOLE
 //#define RAW_MIN_CONSOLE

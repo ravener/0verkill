@@ -8,20 +8,20 @@
 #endif
 
 /* screen dimensions */
-extern int SCREEN_X,SCREEN_Y;
+extern int SCREEN_X, SCREEN_Y;
 
 /* hero's offset on the screen */
-extern int SCREEN_XOFFSET,SCREEN_YOFFSET;
+extern int SCREEN_XOFFSET, SCREEN_YOFFSET;
 
 /* screen buffer (attributes and pixels) */
-extern unsigned char *screen_a,*screen;
+extern unsigned char *screen_a, *screen;
 #ifdef TRI_D
-extern unsigned char *screen2_a,*screen2;
+extern unsigned char *screen2_a, *screen2;
 #endif
 /* previous screen buffer (attributes and pixels) */
-extern unsigned char *screen_a_old,*screen_old;
+extern unsigned char *screen_a_old, *screen_old;
 #ifdef TRI_D
-extern unsigned char *screen2_a_old,*screen2_old;
+extern unsigned char *screen2_a_old, *screen2_old;
 #endif
 
 
@@ -41,8 +41,8 @@ extern void redraw_screen(void);
 /* resize and clear screenbuffers */
 extern void resize_screen(void);
 /* print text on given position and with given color into screenbuffer  */
-extern void print2screen(int x,int y,unsigned char color,char* message);
+extern void print2screen(int x, int y, unsigned char color, char* message);
 /* draw frame into screen buffer */
-extern void draw_frame(int x,int y,int w,int h,unsigned char color);
+extern void draw_frame(int x, int y, int w, int h, unsigned char color);
 
 #endif
