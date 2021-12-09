@@ -19,7 +19,7 @@ oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
 prefix = @prefix@
 BASEDIR=@datadir@/0verkill
-CFLAGS += @CFLAGS@ -O3 @X_CFLAGS@ -DBASE_DIR="\"$(BASEDIR)\"" -Wall -W -Wstrict-prototypes -Wno-parentheses
+CFLAGS += @CFLAGS@ -O3 @X_CFLAGS@ -DBASE_DIR="\"$(BASEDIR)\"" -Wall -W -Wstrict-prototypes -Wno-parentheses -fcommon
 #-malign-functions=0
 LDFLAGS?=@LDFLAGS@
 LIBS=@LIBS@ 
