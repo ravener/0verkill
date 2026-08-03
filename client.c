@@ -1708,10 +1708,17 @@ void load_banner(char **banner)
 	if (!(*banner)){shut_down(0);ERROR("Error: Not enough memory.\n");EXIT(1);}
 	while (fgets(line,1024,s))
 	{
-		if (line[strlen(line)-1]==10)line[strlen(line)-1]=0;
-		if (line[strlen(line)-1]==13)line[strlen(line)-1]=0;  /* crlf shit */
+		/* crlf shit */
+		b = strlen(line);
+		if (b > 0 && line[b-1]==10) {
+			line[b-1]=0;
+			b--;
+		}
+		if (b > 0 && line[b-1]==13) {
+			line[b-1]=0;
+			b--;
+		}
 		a=strlen(*banner);
-		b=strlen(line);
 		*banner=mem_realloc((*banner),a+b+SCREEN_X+1);
 		memcpy((*banner)+a,line,b);
 		memset((*banner)+a+b,' ',SCREEN_X);
