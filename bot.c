@@ -107,7 +107,7 @@ static struct sockaddr_in server;  /* server address */
 
 /* objects */
 static struct object_list objects;
-struct object_list *last_obj;
+extern struct object_list *last_obj;
 static struct it* hero;
 
 static unsigned long_long game_start_offset; /* time difference between game start on this machine and on server */

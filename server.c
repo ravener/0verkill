@@ -104,7 +104,7 @@ struct queue_list
 struct object_list objects;
 
 struct player_list *last_player;
-struct object_list *last_obj;
+extern struct object_list *last_obj;
 
 
 #ifdef WIN32

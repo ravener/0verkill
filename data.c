@@ -25,6 +25,10 @@ int tri_d = 0;
 int TRI_D_ON = 0;
 #endif
 
+/* see data.h */
+unsigned char *weapon_name[ARMS];
+struct obj_attr_type obj_attr[N_TYPES];
+struct weapon_type weapon[ARMS];
 
 /* static map of the level */
 unsigned char *area;
